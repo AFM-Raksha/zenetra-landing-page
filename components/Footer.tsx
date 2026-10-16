@@ -15,7 +15,7 @@ export default function Footer() {
           </div>
           <div>
             <h4>Resources</h4>
-            <ul><li><a href="#features">Sample flag</a></li><li><a href="#security">Security</a></li><li><a href="#faq">FAQ</a></li></ul>
+            <ul><li><a href="#sample-flag">Sample flag</a></li><li><a href="#security">Security</a></li><li><a href="#faq">FAQ</a></li></ul>
           </div>
           <div>
             <h4>Contact</h4>
@@ -24,7 +24,6 @@ export default function Footer() {
         </div>
         <div className="legal">
           <span>© 2026 Zenetra</span>
-          <span>Sample page · TestCo, its vendors and all amounts are illustrative</span>
         </div>
       </div>
     </footer>

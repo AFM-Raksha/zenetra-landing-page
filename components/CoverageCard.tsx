@@ -1,94 +1,207 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
-const X0 = 96, X1 = 516, DAYS = 365, PITCH = (X1 - X0) / DAYS;
-const EV = [38, 96, 151, 203, 262, 341];
-const WIN = [332, 354];
-const MONTHS = ["A", "M", "J", "J", "A", "S", "O", "N", "D", "J", "F", "M"];
-const MDAYS = [30, 31, 30, 31, 31, 30, 31, 30, 31, 31, 28, 31];
-const MONTH_START = MDAYS.map((_, i) => MDAYS.slice(0, i).reduce((a, b) => a + b, 0));
-const W = Math.max(PITCH - 0.35, 0.6);
+// One financial year (Apr 2025 – Mar 2026) drawn as twelve month calendars, GitHub style:
+// each column is a week, each row a weekday. Both rows play out the same year in sync.
+// Zenetra checks every day as it happens. The sample takes a handful of snapshots across the
+// year (shown as soft flashes that leave a ring behind) and only sees the days inside them.
+
+const X0 = 0, X1 = 520, GAP = 6;
+const PAD = 16; // room above and below the calendar for the snapshot rings
+const START = Date.UTC(2025, 3, 1);
+const DAYS = 365;
+
+const SCAN = 6500;      // ms to play out the year
+const HOLD = 3800;      // ms to rest on the finished year before looping
+const CYCLE = SCAN + HOLD;
+const FLASH = 1600;     // ms each snapshot flash lasts
+
+const LAYOUT = (() => {
+  const raw: { month: number; col: number; row: number }[] = [];
+  const colsPerMonth: number[] = [];
+  for (let d = 0; d < DAYS; d++) {
+    const date = new Date(START + d * 86400000);
+    const month = (date.getUTCMonth() + 9) % 12; // April = 0
+    const firstWd = (new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), 1)).getUTCDay() + 6) % 7; // Monday = 0
+    const col = Math.floor((date.getUTCDate() - 1 + firstWd) / 7);
+    raw.push({ month, col, row: (date.getUTCDay() + 6) % 7 });
+    colsPerMonth[month] = Math.max(colsPerMonth[month] ?? 0, col + 1);
+  }
+  const totalCols = colsPerMonth.reduce((a, b) => a + b, 0);
+  const pitch = (X1 - X0 - 11 * GAP) / totalCols;
+  const monthX = colsPerMonth.map((_, m) => X0 + colsPerMonth.slice(0, m).reduce((a, b) => a + b, 0) * pitch + m * GAP);
+  const cells = raw.map((r) => ({ x: monthX[r.month] + r.col * pitch, y: r.row * pitch }));
+  return { cells, size: pitch - 1.1, height: 7 * pitch };
+})();
+
+type Snap = { from: number; to: number; at: number; ringDay: number; dx: number; dy: number };
+type Year = { events: number[]; snaps: Snap[]; pct: number };
+
+// Seeded so the server render and the first browser render match.
+function seeded(seed: number) {
+  return () => {
+    seed = (seed * 1664525 + 1013904223) % 4294967296;
+    return seed / 4294967296;
+  };
+}
+
+const atDay = (d: number) => (d / DAYS) * SCAN;
+
+function makeYear(rand: () => number): Year {
+  const pct = 15 + Math.floor(rand() * 6);
+  const k = 5 + Math.floor(rand() * 4); // 5–8 snapshots
+  const total = Math.round((DAYS * pct) / 100);
+  const seg = DAYS / k;
+  // One snapshot per slice of the year keeps them in order and spaced, so only 2–3 flash at once.
+  // Window lengths vary a little but always add up to the target share of the year.
+  const lens = Array.from({ length: k }, () => 0.85 + rand() * 0.3);
+  const scale = total / lens.reduce((a, b) => a + b, 0);
+  const sizes = lens.map((l) => Math.round(l * scale));
+  sizes[k - 1] += total - sizes.reduce((a, b) => a + b, 0);
+  const snaps: Snap[] = Array.from({ length: k }, (_, i) => {
+    const len = sizes[i];
+    // Centres stay in the middle 60% of each slice, so no more than three flashes ever overlap.
+    const center = Math.round(i * seg + seg * (0.2 + 0.6 * rand()));
+    const from = Math.max(0, center - Math.floor(len / 2));
+    const to = Math.min(DAYS, from + len);
+    // The ring lands on a random day inside the snapshot, nudged a little, so marks don't line up.
+    const ringDay = from + Math.floor(rand() * (to - from));
+    return { from, to, at: atDay(center), ringDay, dx: (rand() - 0.5) * 6, dy: (rand() - 0.5) * 6 };
+  });
+  const inSnap = (d: number) => snaps.some((s) => d >= s.from && d < s.to);
+  const shown = Math.round((Array.from({ length: DAYS }, (_, d) => d).filter(inSnap).length / DAYS) * 100);
+
+  const n = 6 + Math.floor(rand() * 15); // 6–20 fraud events
+  const set = new Set<number>();
+  while (set.size < n) set.add(5 + Math.floor(rand() * (DAYS - 10)));
+  const events = [...set].sort((a, b) => a - b);
+  // The sample should catch some of them, never none and never all.
+  const caught = events.filter(inSnap);
+  if (caught.length === 0) {
+    const s = snaps[Math.floor(rand() * snaps.length)];
+    events[Math.floor(rand() * events.length)] = s.from + Math.floor(rand() * (s.to - s.from));
+  } else if (caught.length === events.length) {
+    events[0] = snaps[0].from > 2 ? snaps[0].from - 2 : snaps[0].to + 2;
+  }
+  const unique = new Set(events);
+  while (unique.size < 6) {
+    const d = 5 + Math.floor(rand() * (DAYS - 10));
+    if (!inSnap(d)) unique.add(d);
+  }
+  return { events: [...unique].sort((a, b) => a - b), snaps, pct: shown };
+}
+
+const C = { empty: "#ECEDEF", seen: "#C9C2B8", flag: "#D8452B", head: "#B07A45" };
+const ease = (p: number) => 1 - Math.pow(1 - p, 3);
+const MARK_R = 9;
+const VIEW = `0 ${-PAD} ${X1} ${LAYOUT.height + PAD * 2}`;
+
+const SAMPLE_POINTS = ["A few days, picked at random", "Checked after the year closes", "Found long after, often too late to act"];
+const ZEN_POINTS = ["Every transaction, every day", "Checked the moment it posts", "Flagged in time to take quick decisions"];
 
 export default function CoverageCard() {
-  const [day, setDay] = useState<number | null>(null);
-  const svgRef = useRef<SVGSVGElement>(null);
-  const rafRef = useRef(0);
-
-  const play = useCallback(() => {
-    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    cancelAnimationFrame(rafRef.current);
-    const t0 = performance.now(), dur = 3200;
-    const f = (now: number) => {
-      const p = Math.min(1, (now - t0) / dur);
-      if (p < 1) { setDay(p * DAYS); rafRef.current = requestAnimationFrame(f); } else setDay(null);
-    };
-    rafRef.current = requestAnimationFrame(f);
-  }, []);
+  const [t, setT] = useState(CYCLE - 1); // at rest: the finished year
+  const [year, setYear] = useState<Year>(() => makeYear(seeded(7)));
+  const wrapRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const el = svgRef.current;
-    if (!el) return;
-    let done = false;
-    const io = new IntersectionObserver((es) => { if (es[0].isIntersecting && !done) { done = true; play(); } }, { threshold: 0.5 });
+    const el = wrapRef.current;
+    if (!el || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    let raf = 0, start = 0, running = false;
+    const frame = (now: number) => {
+      if (!start) start = now;
+      let e = now - start;
+      if (e >= CYCLE) { start = now; e = 0; setYear(makeYear(Math.random)); }
+      setT(e);
+      if (running) raf = requestAnimationFrame(frame);
+    };
+    const io = new IntersectionObserver((es) => {
+      const vis = es[0].isIntersecting;
+      if (vis && !running) { running = true; start = 0; setYear(makeYear(Math.random)); raf = requestAnimationFrame(frame); }
+      if (!vis) { running = false; cancelAnimationFrame(raf); setT(CYCLE - 1); }
+    }, { threshold: 0.4 });
     io.observe(el);
-    return () => { io.disconnect(); cancelAnimationFrame(rafRef.current); };
-  }, [play]);
+    return () => { io.disconnect(); cancelAnimationFrame(raf); };
+  }, []);
 
-  const monthMarks = MONTHS.map((m, i) => {
-    const x = X0 + MONTH_START[i] * PITCH;
-    return (
-      <g key={i}>
-        <text x={x + 2} y={14}>{m}</text>
-        <line x1={x} x2={x} y1={20} y2={150} stroke="#EEEEF0" />
-      </g>
-    );
-  });
+  const { cells, size, height } = LAYOUT;
+  const scanDay = t < SCAN ? Math.floor((t / SCAN) * DAYS) : DAYS;
+  const yearDone = t >= SCAN;
 
-  const headX = day === null ? null : X0 + (day / DAYS) * (X1 - X0);
+  // Days inside a snapshot count as sampled once its flash fires. Only fraud days inside show it.
+  const sampled = new Set<number>();
+  for (const s of year.snaps) if (t >= s.at) for (let d = s.from; d < s.to; d++) sampled.add(d);
+  const events = new Set(year.events);
+  const headX = scanDay < DAYS ? cells[scanDay].x + size / 2 : null;
 
   return (
     <article className="fcard">
-      <div className="fh"><h3>Coverage</h3><a className="more" href="#continuous">How it works →</a></div>
-      <p className="s">All 365 days, not three weeks</p>
-      <p className="d">A year-end sample sees one review window. Zenetra monitors every day, so each event is flagged soon after it posts.</p>
-      <div className="mock yr">
-        <svg ref={svgRef} viewBox="0 0 520 168" role="img" aria-label="One financial year. The year-end sample catches 1 of 6 events. Continuous monitoring flags all 6.">
-          {monthMarks}
-          <text x={0} y={62} className="rl">Year-end sample</text>
-          <text x={0} y={126} className="rl">Zenetra</text>
-          <rect x={X0 + WIN[0] * PITCH - 2} y={42} width={(WIN[1] - WIN[0]) * PITCH + 4} height={34} rx={4} fill="#F3F4F6" stroke="#A2978C" strokeDasharray="2 3" />
-          <text x={X0 + WIN[0] * PITCH - 6} y={88} textAnchor="end">review window · ~60 vouchers</text>
-          {Array.from({ length: DAYS }, (_, d) => {
-            const x = X0 + d * PITCH, inW = d >= WIN[0] && d < WIN[1];
-            const isFlag = EV.includes(d - 1);
-            const on = day === null || d <= day;
-            return (
-              <g key={d}>
-                <rect x={x} y={46} width={W} height={26} fill={inW && d % 3 === 0 ? "#3D3D42" : "#ECEDEF"} />
-                <rect x={x} y={110} width={W} height={26} fill={isFlag ? "#D8452B" : on ? "#C9C2B8" : "#ECEDEF"} />
-              </g>
-            );
-          })}
-          {EV.map((d) => {
-            const x = X0 + d * PITCH + PITCH / 2, caught = d >= WIN[0] && d < WIN[1];
-            return (
-              <g key={d}>
-                <path d={`M${x - 4} 26 L${x} 32 L${x + 4} 26 Z`} fill="#D8452B" />
-                <line x1={x} x2={x} y1={34} y2={150} stroke="#D8452B" strokeWidth={0.7} strokeDasharray="2 3" opacity={0.55} />
-                <circle cx={x} cy={59} r={6} fill={caught ? "#D8452B" : "#fff"} stroke="#D8452B" strokeWidth={1.2} opacity={caught ? 1 : 0.7} />
-                <circle cx={x + PITCH} cy={123} r={6} fill="#D8452B" />
-                <text x={x + PITCH} y={162} textAnchor="middle" style={{ fill: "#D8452B" }}>flag</text>
-              </g>
-            );
-          })}
-          {headX !== null && <line x1={headX} x2={headX} y1={104} y2={142} stroke="#B07A45" strokeWidth={2} />}
-        </svg>
-        <div className="yr-sum">
-          <div><b>1 of 6</b><span>caught by year-end sampling</span></div>
-          <div className="good"><b>6 of 6</b><span>flagged by continuous monitoring</span></div>
+      <div className="fh"><h3>Coverage</h3><a className="more" href="#continuous">See it live →</a></div>
+      <p className="s">All 365 days, not a sample</p>
+      <p className="d">A sample looks at a few snapshots of the year, usually after it has closed. Zenetra checks every transaction as it posts, so fraud is flagged while there is still time to act.</p>
+      <div className="mock yr" ref={wrapRef}>
+        <div className="yr-row">
+          <div className="yr-lab"><b>Year-end sample</b><span>a few days, checked later</span></div>
+          <svg viewBox={VIEW} role="img" aria-label="Year-end sample: a few snapshots across the year, catching only the fraud inside them.">
+            {cells.map((c, d) => {
+              const isEvent = events.has(d);
+              const caught = isEvent && sampled.has(d);
+              const missed = isEvent && yearDone && !caught;
+              return (
+                <rect key={d} x={c.x} y={c.y} width={size} height={size} rx={0.9}
+                  fill={caught ? C.flag : missed ? "#fff" : C.empty}
+                  stroke={missed ? C.flag : undefined} strokeWidth={missed ? 0.9 : undefined} />
+              );
+            })}
+            {/* Snapshot flashes: a soft ring blooms and fades, then leaves a faint ring where the sample was taken. */}
+            {year.snaps.map((s, i) => {
+              const p = (t - s.at) / FLASH;
+              if (p <= 0) return null;
+              const c = cells[s.ringDay];
+              const cx = c.x + size / 2 + s.dx, cy = c.y + size / 2 + s.dy;
+              const mark = <circle cx={cx} cy={cy} r={MARK_R} fill="rgba(176,122,69,0.06)" stroke={C.head} strokeWidth={1} />;
+              if (p >= 1) return <g key={i} opacity={0.55}>{mark}</g>;
+              const r = 3.6 + ease(p) * 12;
+              const o = p < 0.15 ? p / 0.15 : 1 - (p - 0.15) / 0.85;
+              return (
+                <g key={i} style={{ pointerEvents: "none" }}>
+                  <g opacity={0.55 * Math.min(1, p / 0.6)}>{mark}</g>
+                  <g opacity={o * 0.85}>
+                    <circle cx={cx} cy={cy} r={r} fill="rgba(176,122,69,0.10)" stroke={C.head} strokeWidth={1.2} />
+                    <circle cx={cx} cy={cy} r={r * 0.45} fill="rgba(255,255,255,0.55)" />
+                  </g>
+                </g>
+              );
+            })}
+          </svg>
         </div>
-        <p className="rp">Illustrative year, FY 2025–26 · <button className="replay" type="button" onClick={play}>Replay</button></p>
+
+        <div className="yr-row">
+          <div className="yr-lab zen"><b>Zenetra</b><span>every transaction, as it posts</span></div>
+          <svg viewBox={VIEW} role="img" aria-label="Zenetra: every day checked as it happens, with each fraud flagged straight away.">
+            {cells.map((c, d) => (
+              <rect key={d} x={c.x} y={c.y} width={size} height={size} rx={0.9}
+                fill={d < scanDay ? (events.has(d) ? C.flag : C.seen) : C.empty} />
+            ))}
+            {headX !== null && <line x1={headX} x2={headX} y1={-4} y2={height + 3} stroke={C.head} strokeWidth={1.8} strokeLinecap="round" />}
+          </svg>
+        </div>
+
+        <div className="yr-vs">
+          <div className="vs-sample">
+            <p className="yr-vs-h">Year-end sample</p>
+            <ul>{SAMPLE_POINTS.map((x) => (
+              <li key={x}><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 8h8" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" /></svg>{x}</li>
+            ))}</ul>
+          </div>
+          <div className="vs-zen">
+            <p className="yr-vs-h">Zenetra</p>
+            <ul>{ZEN_POINTS.map((x) => (
+              <li key={x}><svg width="14" height="14" aria-hidden="true"><use href="#ick" /></svg>{x}</li>
+            ))}</ul>
+          </div>
+        </div>
       </div>
     </article>
   );

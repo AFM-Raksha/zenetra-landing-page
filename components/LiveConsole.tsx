@@ -98,7 +98,7 @@ export default function LiveConsole() {
 
   return (
     <div className="console-wrap">
-      <div className="console" aria-label="Live monitoring console, sample data">
+      <div className="console" aria-label="Live monitoring console, demo data">
         <div className="c-head">
           <Mark />
           <span className="t">Live monitoring <span>· TestCo</span></span>

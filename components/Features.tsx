@@ -6,7 +6,7 @@ import { ENTITIES } from "@/lib/content";
 function GapsCard() {
   return (
     <article className="fcard">
-      <div className="fh"><h3>Gaps, named</h3><a className="more" href="#faq">Why it matters →</a></div>
+      <div className="fh"><h3>Gaps, named</h3></div>
       <p className="s">Missing data is never reported as clean</p>
       <p className="d">When a source isn&apos;t connected, the detections that depend on it are marked as not run, with the reason. You always know what was actually covered.</p>
       <div className="mock tinted">

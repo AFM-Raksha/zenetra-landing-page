@@ -77,7 +77,7 @@ export default function FlagBoard() {
             ))}
           </div>
         </div>
-        <p className="bcap">Drag a flag between stages. Sample data.</p>
+        <p className="bcap">Drag a flag between stages.</p>
       </div>
     </section>
   );

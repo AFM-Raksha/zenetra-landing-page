@@ -1,29 +1,20 @@
 import { SOURCES_1, SOURCES_2 } from "@/lib/content";
-import StatsSwitch from "./StatsSwitch";
-
-const PILLARS: [string, string, string][] = [
-  ["Coverage", "100%", "of transactions monitored, not a sample"],
-  ["Scope", "Group-wide", "every entity read as one network"],
-  ["Access", "Read-only", "nothing is ever written to your ERP"],
-  ["Cadence", "Always on", "monitoring runs on every sync"],
-];
 
 const ICON = { viewBox: "0 0 16 16", fill: "none", stroke: "currentColor", strokeWidth: 1.8, strokeLinecap: "round" as const, strokeLinejoin: "round" as const };
 
-// Concept B: one editorial sentence, with each claim as an inline token that lights up in turn.
+// One editorial sentence, with each claim as an inline token that lights up in turn.
 function Statement() {
-  const tok = (delay: number, icon: React.ReactNode, text: string, live = false) => (
-    <span className={`tok${live ? " live" : ""}`} style={{ animationDelay: `${delay}s` }}>
+  const tok = (delay: number, icon: React.ReactNode, text: string) => (
+    <span className="tok" style={{ animationDelay: `${delay}s` }}>
       <i>{icon}</i>{text}
     </span>
   );
   return (
     <p className="stats-sentence">
       Zenetra monitors {tok(0, <svg {...ICON}><circle cx="8" cy="8" r="6" /><path d="M8 2v6h6" /></svg>, "100%")} of your transactions,
-      across {tok(2, <svg {...ICON}><circle cx="4" cy="4" r="2" /><circle cx="12" cy="4" r="2" /><circle cx="8" cy="12" r="2" /><path d="M5.5 5.5l1.5 4.8M10.5 5.5L9 10.3M6 4h4" /></svg>, "every entity")} in your group,
-      with {tok(4, <svg {...ICON}><rect x="3.5" y="7" width="9" height="7" rx="1.5" /><path d="M5.5 7V5a2.5 2.5 0 015 0v2" /></svg>, "read-only")} access
-      <span className="muted"> to the ERP you already run, </span>
-      {tok(6, <b />, "always on", true)}.
+      across {tok(2.6, <svg {...ICON}><circle cx="4" cy="4" r="2" /><circle cx="12" cy="4" r="2" /><circle cx="8" cy="12" r="2" /><path d="M5.5 5.5l1.5 4.8M10.5 5.5L9 10.3M6 4h4" /></svg>, "every entity")} in your group,
+      with {tok(5.2, <svg {...ICON}><rect x="3.5" y="7" width="9" height="7" rx="1.5" /><path d="M5.5 7V5a2.5 2.5 0 015 0v2" /></svg>, "read-only")} access
+      <span className="muted"> to the ERP you already run.</span>
     </p>
   );
 }
@@ -48,20 +39,7 @@ export default function StatsSources() {
   return (
     <section className="greyband" style={{ paddingBlock: "8px 64px" }}>
       <div className="wrap">
-        <StatsSwitch
-          pillars={
-            <div className="stats">
-              {PILLARS.map(([label, value, caption]) => (
-                <div key={label}>
-                  <em>{label}</em>
-                  <b>{value}</b>
-                  <span>{caption}</span>
-                </div>
-              ))}
-            </div>
-          }
-          sentence={<Statement />}
-        />
+        <Statement />
         <p className="eyebrow center" style={{ marginBottom: 18 }}>Works with Zoho Books, Tally, SAP &amp; more</p>
         <div className="marq"><Track items={SOURCES_1} id="mq1" /></div>
         <div className="marq rev" style={{ marginTop: 10 }}><Track items={SOURCES_2} id="mq2" /></div>

@@ -19,7 +19,7 @@ export default function Hero() {
           </p>
           <div className="ctas">
             <a className="btn" href="#contact">Request a demo <Arrow /></a>
-            <a className="btn2" href="#features">See a sample flag</a>
+            <a className="btn2" href="#sample-flag">See a sample flag</a>
           </div>
           <div className="chks">
             <Chk>Zoho Books, Tally, SAP &amp; more</Chk>
