@@ -2,7 +2,7 @@ import { Arrow } from "./Icons";
 
 const STEPS: [string, string][] = [
   ["Connect", "Authorise a read-only link to each company's ERP: Zoho Books, Tally, SAP and more."],
-  ["Map", "Every entity, vendor, bill and payment lands in one ledger model."],
+  ["Map", "Every entity, vendor, employee, customer and journal lands in one model."],
   ["Monitor", "Detections run on every sync, inside and across companies."],
   ["Resolve", "Flags arrive with evidence. Your team works them to closure."],
 ];

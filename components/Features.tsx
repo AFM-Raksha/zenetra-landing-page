@@ -19,11 +19,11 @@ function GapsCard() {
           <div><b>4 of 6 data sources connected</b><span>{ENTITIES.IND} · March · 18,240 entries</span></div>
         </div>
         <ul className="gl">
-          <li><span className="r">Payments and bills</span><span className="pill ok">Connected</span></li>
-          <li><span className="r">Vendor master</span><span className="pill ok">Connected</span></li>
-          <li><span className="r">Change history</span><span className="pill ok">Connected</span></li>
-          <li><span className="r">Goods receipts</span><span className="pill g">Not connected</span><span className="why">Receipt-related detections paused</span></li>
-          <li><span className="r">HR master</span><span className="pill g">Not connected</span><span className="why">Employee–vendor detections paused</span></li>
+          <li><span className="r">Purchases and payments</span><span className="pill ok">Connected</span></li>
+          <li><span className="r">Sales and receipts</span><span className="pill ok">Connected</span></li>
+          <li><span className="r">Journals and change history</span><span className="pill ok">Connected</span></li>
+          <li><span className="r">Payroll register</span><span className="pill g">Not connected</span><span className="why">Payroll detections paused</span></li>
+          <li><span className="r">Related-party register</span><span className="pill g">Not connected</span><span className="why">Related-party detections paused</span></li>
         </ul>
       </div>
     </article>

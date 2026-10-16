@@ -29,7 +29,7 @@ export const metadata: Metadata = {
   applicationName: SITE_NAME,
   keywords: [
     "fraud detection", "transaction monitoring", "continuous monitoring", "procure to pay fraud",
-    "vendor fraud", "duplicate payments", "payment diversion", "group companies", "Zoho Books", "Tally", "SAP",
+    "vendor fraud", "payroll fraud", "ghost employees", "duplicate payments", "payment diversion", "round-tripping", "related party transactions", "journal entry testing", "group companies", "Zoho Books", "Tally", "SAP",
   ],
   category: "business",
   alternates: { canonical: "/" },

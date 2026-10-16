@@ -31,7 +31,7 @@ export default function EvidenceCard() {
         <div className="fm-head">
           <div className="row">
             <span className="pill flag">High risk</span>
-            <span className="pill br">Payment risk</span>
+            <span className="pill br mono">P2P-11</span>
             <span className="pill g">{ENTITIES.IND}</span>
           </div>
           <h4>Bank details changed, then paid next morning</h4>
@@ -67,9 +67,9 @@ export default function EvidenceCard() {
 
         <div className="panel" role="tabpanel" id="p-pat" aria-labelledby="t-pat" hidden={tab !== "pat"}>
           <dl className="kv">
-            <dt>Pattern</dt><dd>Payment diversion</dd>
+            <dt>Pattern</dt><dd>Payment diversion · P2P-11</dd>
             <dt>What it is</dt><dd>Supplier bank details are changed shortly before a payment, so money goes to an account the supplier does not control.</dd>
-            <dt>Category</dt><dd>Payment risk</dd>
+            <dt>Category</dt><dd>Purchasing · Fraud indicator</dd>
             <dt>Severity</dt><dd>High</dd>
           </dl>
         </div>

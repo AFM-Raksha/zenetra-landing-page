@@ -118,7 +118,7 @@ export default function ContinuousCard() {
       const i = Math.floor((mx + offset) / P), row = Math.floor((my - padY + (P - S) / 2) / P);
       const c = cols[i]?.cells[row];
       if (c && (c.flag || c.miss)) {
-        tip.innerHTML = c.flag && c.type ? `<b>${c.type.category}</b> · ${c.type.name}<br>${inr(c.amt ?? 0)} · flagged` : "Anomaly outside the sample<br>Passed unchecked";
+        tip.innerHTML = c.flag && c.type ? `<b>${c.type.id}</b> · ${c.type.name}<br>${inr(c.amt ?? 0)} · flagged` : "Anomaly outside the sample<br>Passed unchecked";
         tip.style.left = Math.min(Math.max(mx, 130), W - 130) + "px"; tip.style.top = my + "px"; tip.style.opacity = "1";
       } else tip.style.opacity = "0";
     };
@@ -145,7 +145,7 @@ export default function ContinuousCard() {
             <h2 data-reveal>Continuous <em className="acc">monitoring</em></h2>
             <p className="lead">Periodic reviews test a few dozen vouchers. Zenetra screens every transaction as it posts, so nothing passes unseen.</p>
             <div className="chks">
-              <Chk>Every voucher, bill and payment</Chk>
+              <Chk>Every voucher, invoice, payslip and journal</Chk>
               <Chk>Every company in the group</Chk>
               <Chk>Every sync, automatically</Chk>
             </div>

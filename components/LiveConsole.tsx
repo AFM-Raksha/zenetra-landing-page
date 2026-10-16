@@ -1,13 +1,14 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { FLAG_TYPES, PARTIES, inr, type FlagType } from "@/lib/content";
+import { ENTRY_KINDS, FLAG_TYPES, flagsFor, inr, type FlagType } from "@/lib/content";
 import { Mark } from "./Icons";
 
 const TICKS = 16;
 const MAX_ROWS = 8;
 const ENT = ["IND", "EXP", "RET"];
-const VT = ["PV", "PUR", "JV", "PV", "PUR"];
+// Weighted list of entry kinds, so purchases stream more often than bank entries.
+const KIND_POOL = ENTRY_KINDS.flatMap((k) => Array<typeof k>(k.weight).fill(k));
 
 type Row = {
   id: number; time: string; party: string; ent: string; voucher: string; amt: number;
@@ -28,13 +29,14 @@ const pad = (n: number) => String(n).padStart(2, "0");
 
 function makeRow(rand: () => number, clock: number, vn: number, fresh: boolean): Row {
   const pick = <T,>(a: readonly T[]) => a[Math.floor(rand() * a.length)];
+  const kind = pick(KIND_POOL);
   const amt = Math.round((8000 + rand() * rand() * 1400000) / 10) * 10;
   const isFlag = rand() < 0.17;
   return {
     id: vn,
     time: `${pad(Math.floor(clock / 3600) % 24)}:${pad(Math.floor(clock / 60) % 60)}:${pad(clock % 60)}`,
-    party: pick(PARTIES), ent: pick(ENT), voucher: `${pick(VT)}/25-26/${vn}`, amt,
-    flag: isFlag ? pick(FLAG_TYPES) : null, hit: Math.floor(rand() * TICKS),
+    party: pick(kind.parties), ent: pick(ENT), voucher: `${kind.vt}/25-26/${vn}`, amt,
+    flag: isFlag ? pick(flagsFor(kind.domain)) : null, hit: Math.floor(rand() * TICKS),
     run: !fresh, done: !fresh, fresh,
   };
 }
@@ -119,7 +121,7 @@ export default function LiveConsole() {
               </span>
               <span className="st">
                 {!r.done ? <span className="pill g">Checking</span>
-                  : r.flag ? <span className="pill flag">{r.flag.short}</span>
+                  : r.flag ? <span className="pill flag mono">{r.flag.id}</span>
                   : <span className="pill ok">Clear</span>}
               </span>
             </div>
@@ -132,7 +134,7 @@ export default function LiveConsole() {
         </div>
       </div>
       <div className={`toast${toastOn ? " show" : ""}`} role="status" aria-live="polite">
-        <div className="top"><i />New flag · {shown.flag.category}</div>
+        <div className="top"><i />New flag · {shown.flag.id}</div>
         <b>{shown.flag.name}</b>
         <span className="m">{shown.party} · {inr(shown.amt)}</span>
       </div>

@@ -6,9 +6,9 @@ import { ENTITIES } from "@/lib/content";
 type View = "entity" | "group";
 
 const STEPS = [
-  { title: "Split vendor", tag: "Vendor risk", body: `Apex Supplies in ${ENTITIES.IND} and Apex Supply Co in ${ENTITIES.EXP} share one PAN. Each company sees a small vendor. Together the group paid one supplier ₹1.9 crore, above its tender limit.` },
-  { title: "Shared bank account", tag: "Vendor risk", body: `Apex Supply Co and Northline Traders are paid into the same account, ••4471. Northline is also a customer of ${ENTITIES.RET}.` },
-  { title: "Round-trip", tag: "Group risk", body: "₹48 lakh leaves Industries as a purchase, returns through Northline as a customer advance to Retail, then moves back to Industries as an intercompany loan. The sales and cash look real. Nothing was sold." },
+  { title: "Split vendor", tag: "P2P-03", body: `Apex Supplies in ${ENTITIES.IND} and Apex Supply Co in ${ENTITIES.EXP} share one PAN. Each company sees a small vendor. Together the group paid one supplier ₹1.9 crore, above its tender limit.` },
+  { title: "Shared bank account", tag: "O2C-07", body: `Apex Supply Co and Northline Traders are paid into the same account, ••4471. Northline is also a customer of ${ENTITIES.RET}.` },
+  { title: "Round-trip", tag: "RTP-01", body: "₹48 lakh leaves Industries as a purchase, returns through Northline as a customer advance to Retail, then moves back to Industries as an intercompany loan. The sales and cash look real. Nothing was sold." },
 ];
 
 const STORY = [
