@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { ENTITY_OPTIONS, ERP_OPTIONS } from "@/lib/form-options";
 import { Chk } from "./Icons";
@@ -64,6 +65,7 @@ export default function Contact() {
               <button className="btn plain" type="submit" disabled={sending}>{sending ? "Sending…" : "Request a demo"}</button>
               <p className="fnote" role="status" style={{ color: status.state === "error" ? "var(--flag)" : status.state === "sending" ? "var(--mute)" : undefined }}>{status.text}</p>
             </div>
+            <p className="full consent">By requesting a demo, you agree that we may use these details to contact you, as described in our <Link href="/privacy">Privacy Policy</Link>.</p>
           </form>
         </div>
       </div>
