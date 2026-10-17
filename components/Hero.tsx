@@ -15,7 +15,7 @@ export default function Hero() {
             <span className="taupe">Across every company, every day.</span>
           </h1>
           <p className="sub">
-            <b>Zenetra monitors 100% of your transactions</b> for fraud, from purchases and payroll to sales, journals and bank flows, across every company in your group. Every flag comes with its evidence.
+            <b>Zenetra monitors 100% of your transactions</b> from purchases and payroll to sales, journals and bank flows, across every company in your group. Every flag comes with its evidence.
           </p>
           <div className="ctas">
             <a className="btn" href="#contact">Request a demo <Arrow /></a>
@@ -23,7 +23,7 @@ export default function Hero() {
           </div>
           <div className="chks">
             <Chk>Zoho Books, Tally, SAP &amp; more</Chk>
-            <Chk>Purchasing, payroll, sales &amp; ledger</Chk>
+            <Chk>Purchases, payroll, sales &amp; journals</Chk>
             <Chk>Evidence on every flag</Chk>
           </div>
         </div>

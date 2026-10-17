@@ -41,7 +41,7 @@ export default function FlagBoard() {
           <p className="eyebrow">Flag board</p>
           <h2 className="h2" data-reveal>Every flag, tracked to closure.</h2>
           <p className="lead">
-            Flags land on a shared board with owners, notes and a full history. High-risk flags can be escalated immediately. Leadership sees what was raised, what was done and who signed it off.
+            Flags land on a shared board with owners & management teams, notes and a full history. High-risk flags can be escalated immediately. Leadership sees what was raised, what was done and who signed it off.
           </p>
           <div className="feat">
             <span>Assign owners</span><span>Instant escalation</span><span>Notes and evidence</span><span>Full activity history</span><span>Board-ready export</span>

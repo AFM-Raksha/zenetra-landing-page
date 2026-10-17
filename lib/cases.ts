@@ -32,9 +32,9 @@ export const CASES: CaseFile[] = [
   },
   {
     id: "PAY-04", segment: "Payroll", severity: "High risk", entity: ENTITIES.RET,
-    title: "Salary still paid three months after exit",
-    meta: "Employee E-2207 · ₹84,500 a month · 31 Mar 2026",
-    summary: "Employee E-2207 left on 31 December[1], but salary was credited in January, February and March[2]. There is no attendance after the exit date[3], and the salary account was changed two days after the exit[4].",
+    title: "Salary paid three months after exit",
+    meta: "Employee E-207 · ₹84,500 a month · 31 Mar 2026",
+    summary: "Employee E-207 left on 31 December[1], but salary was credited in January, February and March[2]. There is no attendance after the exit date[3], and the salary account was changed two days after the exit[4].",
     evidence: [
       { text: "Exit recorded, last working day 31 Dec 2025", src: "Employee master · HR-03 · 02 Jan" },
       { text: "Salary credited for Jan, Feb and Mar 2026", src: "SAL/25-26/0412, 0498, 0571" },
@@ -46,12 +46,12 @@ export const CASES: CaseFile[] = [
   {
     id: "PAY-01", segment: "Payroll", severity: "High risk", entity: ENTITIES.RET,
     title: "Three employees paid into one bank account",
-    meta: "E-3051, E-3052, E-3060 · ₹1,26,000 in March · 31 Mar 2026",
+    meta: "E-351, E-302, E-360 · ₹1,26,000 in March · 31 Mar 2026",
     summary: "Three employees on the TestCo Retail payroll are paid into the same account[1]. All three were created in the same week by one user[2], two of them have no attendance on record[3], and together they drew ₹1.26 lakh in March[4].",
     evidence: [
-      { text: "E-3051, E-3052 and E-3060 share account ••5120", src: "Employee master · payroll bank file" },
+      { text: "E-351, E-302 and E-360 share account ••5120", src: "Employee master · payroll bank file" },
       { text: "All three created 03–06 Feb by user HR-07", src: "Change history" },
-      { text: "No attendance for E-3052 or E-3060", src: "Attendance register · Feb and Mar" },
+      { text: "No attendance for E-351 or E-360", src: "Attendance register · Feb and Mar" },
       { text: "₹1,26,000 paid across the three in March", src: "SAL/25-26/0566–0568" },
     ],
     pattern: { name: "Ghost employees", what: "Fictitious or duplicate employees added to payroll so that salary can be collected by someone else.", category: "Payroll · Fraud indicator" },

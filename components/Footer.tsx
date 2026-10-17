@@ -8,7 +8,7 @@ export default function Footer() {
         <div className="fgrid2">
           <div>
             <Link className="brand" href="/#top"><Mark /><b>Zenetra</b></Link>
-            <p className="about">Continuous transaction monitoring and fraud detection for companies and groups.</p>
+            <p className="about">Continuous transaction monitoring and exception flagging for companies and groups.</p>
           </div>
           <div>
             <h4>Product</h4>

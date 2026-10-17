@@ -7,10 +7,10 @@ export default function RiskAreas() {
     <section className="sec greyband" id="areas">
       <div className="wrap">
         <div className="head-block">
-          <p className="eyebrow">Nine risk areas</p>
+          <p className="eyebrow">Several risk areas</p>
           <h2 className="h2" data-reveal>Different leaks need different detections.</h2>
           <p className="lead">
-            Fraud rarely looks like one bad entry. It shows up as a pattern across vendors, payroll, sales, journals and bank accounts, and often across companies. Zenetra&apos;s detections are grouped by where the money leaks. Hover a tag to see what it covers.
+            Misappropriations rarely look like bad entries. It shows up as a pattern across customers, vendors, payroll, accounting transactions and bank accounts, and often across companies. Zenetra&apos;s detections are grouped by where the money leaks. Hover a tag to see what it covers.
           </p>
         </div>
         <div className="areas">

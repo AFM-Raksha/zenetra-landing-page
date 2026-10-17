@@ -16,7 +16,7 @@ export default function Security() {
         <div className="head-block center">
           <p className="eyebrow">Security</p>
           <h2 className="h2" data-reveal>Your data stays <em className="acc">yours.</em></h2>
-          <p className="lead">Built for finance teams who answer to boards and regulators. Every design choice starts from least access.</p>
+          <p className="lead">Built for management teams who answer to boards and regulators. Every design choice starts from least access.</p>
         </div>
         <div className="sgrid">
           {ITEMS.map(([title, text, icon]) => (
