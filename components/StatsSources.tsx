@@ -14,7 +14,7 @@ function Statement() {
       Zenetra monitors {tok(0, <svg {...ICON}><circle cx="8" cy="8" r="6" /><path d="M8 2v6h6" /></svg>, "100%")} of your transactions,
       across {tok(2.6, <svg {...ICON}><circle cx="4" cy="4" r="2" /><circle cx="12" cy="4" r="2" /><circle cx="8" cy="12" r="2" /><path d="M5.5 5.5l1.5 4.8M10.5 5.5L9 10.3M6 4h4" /></svg>, "every entity")} in your group,
       with {tok(5.2, <svg {...ICON}><rect x="3.5" y="7" width="9" height="7" rx="1.5" /><path d="M5.5 7V5a2.5 2.5 0 015 0v2" /></svg>, "read-only")} access
-      <span className="muted"> to the ERP you already run.</span>
+      <span className="muted"> to the ERP and other sources you already run.</span>
     </p>
   );
 }
@@ -40,7 +40,7 @@ export default function StatsSources() {
     <section className="greyband" style={{ paddingBlock: "8px 64px" }}>
       <div className="wrap">
         <Statement />
-        <p className="eyebrow center" style={{ marginBottom: 18 }}>Works with Zoho Books, Tally, SAP &amp; more</p>
+        <p className="eyebrow center" style={{ marginBottom: 18 }}>Works with Zoho Books, Tally, SAP &amp; other sources &amp; more</p>
         <div className="marq"><Track items={SOURCES_1} id="mq1" /></div>
         <div className="marq rev" style={{ marginTop: 10 }}><Track items={SOURCES_2} id="mq2" /></div>
       </div>

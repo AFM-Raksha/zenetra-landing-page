@@ -71,6 +71,7 @@ export const RISK_AREAS: { title: string; desc: string; tags: string[]; tone: To
   { title: "Round-tripping", desc: "Money and paperwork moving in loops between group companies to inflate turnover or disguise funding.", tags: ["RTP-01", "RTP-04", "RTP-08", "P2P-13"], tone: "b" },
   { title: "Inventory & fixed assets", desc: "Stock that exists only on paper, write-offs timed to cover losses, and assets that are capitalised but never seen.", tags: ["Stock shrinkage", "Ghost assets", "Write-off timing"], tone: "v", concept: true },
   { title: "Ledger hygiene & expenses", desc: "Plug entries that force a reconciliation, privileged overrides, and expense claims that are duplicated or inflated.", tags: ["Plug entries", "Privileged overrides", "Duplicate claims"], tone: "a", concept: true },
+  { title: "& more"},
 ];
 
 /** Flag types shown in the live console, the ledger tooltip and the toast. */
@@ -124,7 +125,7 @@ export const SOURCES_2: [string, string, string, string][] = [
 ];
 
 export type BoardCard = { id: string; party: string; entity: string; tag: string; note: string; amount: string; risk: number; color: string; date: string };
-export const BOARD_COLUMNS: [string, string][] = [["New", "#3567D6"], ["Investigating", "#B7791F"], ["Escalated", "#D8452B"], ["Resolved", "#1E8A5A"]];
+export const BOARD_COLUMNS: [string, string][] = [["New", "#3567D6"], ["On Review", "#B7791F"], ["Escalated", "#D8452B"], ["Cleared", "#1E8A5A"]];
 export const BOARD_CARDS: [number, BoardCard][] = [
   [0, { id: "f1", party: "Shree Ganesh Polymers", entity: ENTITIES.IND, tag: "P2P-11", note: "Bank changed, then paid", amount: "₹6,40,000", risk: 92, color: "#D8452B", date: "13 Mar 2026" }],
   [0, { id: "f2", party: "Employee E-2207", entity: ENTITIES.RET, tag: "PAY-04", note: "Salary paid after exit", amount: "₹84,500", risk: 86, color: "#D8452B", date: "12 Mar 2026" }],
@@ -137,9 +138,9 @@ export const BOARD_CARDS: [number, BoardCard][] = [
 ];
 
 export const FAQ: [string, string][] = [
-  ["What kinds of fraud does Zenetra look for?", "Patterns across purchasing, payroll, sales and receivables, journals and period close, banking and cash, related parties, and round-tripping between group companies. Each detection is built around a known fraud scheme or control weakness, and every flag shows the entries behind it."],
+  ["What kinds of exceptions does Zenetra look for?", "Patterns across purchasing, payroll, sales and receivables, journals and period close, banking and cash, related parties, and round-tripping between group companies. Each detection is built around a known fraud risk or control weakness, and every flag shows the entries behind it."],
   ["Do you need admin access to our ERP?", "No. Zenetra uses read-only connections. It can read vouchers, masters and change history, and it cannot post, edit or delete anything."],
-  ["Where does our data live?", "Monitoring runs in your environment. Transaction data is not pooled with other clients, and credentials are encrypted at rest."],
+  ["Where does our data live?", "Zenetra runs in your environment. Transaction data is not pooled with other clients, and credentials are encrypted at rest."],
   ["How is this different from periodic sampling?", "Sampling reviews a small set of transactions, usually after the period closes. Zenetra monitors every transaction on every sync, so issues surface while there is still time to act. It supports your existing reviews and does not replace them."],
   ["Does Zenetra block transactions?", "No. Zenetra monitors and flags. Your team reviews each flag with its evidence and decides what happens next."],
   ["What if a detection needs data we have not connected?", "The detection is marked as not run, with the missing source named. It is never shown as clean."],

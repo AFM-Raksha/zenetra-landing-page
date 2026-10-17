@@ -138,8 +138,8 @@ export default function CoverageCard() {
   return (
     <article className="fcard">
       <div className="fh"><h3>Coverage</h3><a className="more" href="#continuous">See it live →</a></div>
-      <p className="s">All 365 days, not a sample</p>
-      <p className="d">A sample looks at a few snapshots of the year, usually after it has closed. Zenetra checks every transaction as it posts, so fraud is flagged while there is still time to act.</p>
+      <p className="s">All 365 days, not few days</p>
+      <p className="d">A sample looks at a few documents of the year, usually after it has closed. Zenetra checks every transaction as it posts, so exceptions are flagged while there is still time to act.</p>
       <div className="mock yr" ref={wrapRef}>
         <div className="yr-row">
           <div className="yr-lab"><b>Year-end sample</b><span>a few days, checked later</span></div>

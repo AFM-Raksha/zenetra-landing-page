@@ -71,9 +71,9 @@ export default function PatternsCard() {
 
   return (
     <article className="fcard">
-      <div className="fh"><h3>Fraud patterns</h3><a className="more" href="#areas">Risk areas →</a></div>
-      <p className="s">From vendor fraud to round-tripping</p>
-      <p className="d">Zenetra&apos;s detections cover purchasing, payroll, sales, journals, banking and related parties, built around fraud schemes that finance teams already know.</p>
+      <div className="fh"><h3>Unusual patterns</h3><a className="more" href="#areas">Risk areas →</a></div>
+      <p className="s">From vendor misappropriations to round-tripping</p>
+      <p className="d">Zenetra&apos;s detections cover purchasing, payroll, sales, journals, banking and related parties, built around fraud indicators and exceptions that management teams cannot ignore.</p>
       <div className="mock tinted">
         <div className={`reel${openId ? " paused" : ""}`} ref={reelRef}>
           <div className="reel-shift" style={{ transform: `translateY(${-nudge}px)` }}>
