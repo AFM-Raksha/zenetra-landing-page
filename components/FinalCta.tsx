@@ -3,9 +3,6 @@ import { Arrow, Chk } from "./Icons";
 export default function FinalCta() {
   return (
     <section className="sec final">
-      <div className="rings" aria-hidden="true">
-        {Array.from({ length: 8 }, (_, i) => <i key={i} style={{ animationDelay: `${-i * 2}s` }} />)}
-      </div>
       <div className="wrap">
         <p className="eyebrow">Get started</p>
         <h2 data-reveal>Connect one company today.<br /><span className="taupe">See every flag tomorrow.</span></h2>
