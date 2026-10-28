@@ -7,6 +7,7 @@ export default function Footer() {
         <div className="fgrid2">
           <div>
             <Link className="brand" href="/#top"><b>Zenetra</b></Link>
+            <p className="maker">A product of The Anvora Labs</p>
             <p className="about">Continuous transaction monitoring and exception flagging for companies and groups.</p>
           </div>
           <div>
@@ -23,7 +24,7 @@ export default function Footer() {
           </div>
         </div>
         <div className="legal">
-          <span>© 2026 Zenetra</span>
+          <span>© 2026 The Anvora Labs. All rights reserved.</span>
           <span className="legal-links"><Link href="/privacy">Privacy Policy</Link><Link href="/terms">Terms of Use</Link></span>
         </div>
       </div>
