@@ -1,12 +1,11 @@
 import Link from "next/link";
-import { Arrow, Mark } from "./Icons";
+import { Arrow } from "./Icons";
 
 export default function Nav() {
   return (
     <header className="nav">
       <div className="wrap">
         <Link className="brand" href="/#top" aria-label="Zenetra home">
-          <Mark />
           <b>Zenetra</b>
           <span className="badge">ENTERPRISE</span>
         </Link>

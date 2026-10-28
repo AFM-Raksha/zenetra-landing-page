@@ -10,8 +10,8 @@ type Col = { done: boolean; cells: Cell[] };
 
 const COL = { cell: "#E4E3DF", on: "#C9C2B8", ink: "#202020", mute: "#8A8A8F", flag: "#D8452B", bronze: "#B07A45", bg: "#FFFFFF" };
 const ANOM = 0.014, SPEED = 30;
-// Periodic sampling starts small and widens slowly, to show that even large samples leave gaps.
-const SAMPLE_START = 0.05, SAMPLE_END = 0.5, RAMP_S = 60;
+// Periodic sampling drifts up and down between 5% and 25% of entries, never more.
+const SAMPLE_MID = 0.15, SAMPLE_SWING = 0.1;
 
 export default function ContinuousCard() {
   const [mode, setMode] = useState<Mode>("continuous");
@@ -28,14 +28,23 @@ export default function ContinuousCard() {
     let W = 0, H = 0, P = 14, S = 9, rows = 0, padY = 14, beamX = 0, offset = 0, running = false, last = 0, statT = 0, raf = 0;
     let cols: Col[] = [];
     let sampleT = 0;
-    const sampleRate = () => SAMPLE_START + (SAMPLE_END - SAMPLE_START) * Math.min(1, sampleT / RAMP_S);
+    // Two slow waves of different lengths so the rate wanders rather than pulsing evenly.
+    const sampleRate = () => {
+      const w = 0.7 * Math.sin(sampleT / 3.1) + 0.3 * Math.sin(sampleT / 1.37 + 1.2);
+      return Math.min(0.25, Math.max(0.05, SAMPLE_MID + SAMPLE_SWING * w));
+    };
+    // The rate shown on the label and in the stats; refreshed together so they always match.
+    let shownRate = Math.round(sampleRate() * 100);
     let st = { seen: 0, chk: 0, flag: 0, miss: 0 };
 
-    const makeCol = (): Col => ({ done: false, cells: Array.from({ length: rows }, () => ({ a: Math.random() < ANOM, s: Math.random() < sampleRate(), chk: false, flag: false, miss: false, t: -1e9 })) });
+    const makeCol = (): Col => ({ done: false, cells: Array.from({ length: rows }, () => ({ a: Math.random() < ANOM, s: false, chk: false, flag: false, miss: false, t: -1e9 })) });
     const proc = (col: Col, now: number) => {
       col.done = true;
       for (const c of col.cells) {
         st.seen++;
+        // Sampling is decided as an entry crosses the line, at the current rate, so the
+        // squares waiting on the right all look the same.
+        c.s = mode === "sample" && Math.random() < sampleRate();
         c.chk = mode === "continuous" || c.s;
         if (c.chk) st.chk++;
         if (c.a) {
@@ -59,7 +68,7 @@ export default function ContinuousCard() {
           const c = col.cells[r], y = padY + r * P;
           ctx.fillStyle = c.flag ? COL.flag : c.chk ? COL.on : COL.cell;
           ctx.globalAlpha = col.done ? 1 : 0.7; rr(x, y, S, S, 2); ctx.fill(); ctx.globalAlpha = 1;
-          if (mode === "sample" && c.s) { ctx.strokeStyle = COL.ink; ctx.lineWidth = 1; rr(x - 1.5, y - 1.5, S + 3, S + 3, 3); ctx.stroke(); }
+          if (mode === "sample" && col.done && c.s) { ctx.strokeStyle = COL.ink; ctx.lineWidth = 1; rr(x - 1.5, y - 1.5, S + 3, S + 3, 3); ctx.stroke(); }
           if (c.miss) { ctx.strokeStyle = COL.flag; ctx.globalAlpha = 0.55; ctx.lineWidth = 1.25; ctx.beginPath(); ctx.arc(x + S / 2, y + S / 2, S * 0.85, 0, 7); ctx.stroke(); ctx.globalAlpha = 1; }
           if (c.flag) {
             const a = (now - c.t) / 1400;
@@ -71,7 +80,7 @@ export default function ContinuousCard() {
       if (mode === "continuous") { ctx.strokeStyle = COL.bronze; ctx.lineWidth = 1.5; }
       else { ctx.strokeStyle = COL.mute; ctx.setLineDash([3, 4]); ctx.lineWidth = 1; }
       ctx.beginPath(); ctx.moveTo(beamX + 0.5, 0); ctx.lineTo(beamX + 0.5, H); ctx.stroke(); ctx.restore();
-      const lbl = mode === "continuous" ? "MONITORED · 100%" : `SAMPLED · ${Math.round(sampleRate() * 100)}%`;
+      const lbl = mode === "continuous" ? "MONITORED · 100%" : `SAMPLED · ${shownRate}%`;
       ctx.font = '500 10px "IBM Plex Mono", monospace'; ctx.textAlign = "right";
       const tw = ctx.measureText(lbl).width;
       ctx.fillStyle = COL.bg; ctx.fillRect(beamX - tw - 12, 5, tw + 8, 15);
@@ -81,7 +90,9 @@ export default function ContinuousCard() {
     const paint = () => {
       let done = 0, chk = 0;
       for (const col of cols) if (col.done) for (const c of col.cells) { done++; if (c.chk) chk++; }
-      setStats({ ...st, screened: done ? Math.round((chk / done) * 100) : 0, rate: Math.round(sampleRate() * 100) });
+      shownRate = Math.round(sampleRate() * 100);
+      // In sampling mode the screened share is the sampling rate itself.
+      setStats({ ...st, screened: mode === "sample" ? shownRate : done ? Math.round((chk / done) * 100) : 0, rate: shownRate });
     };
     const layout = () => {
       const dpr = Math.min(devicePixelRatio || 1, 2);
@@ -174,7 +185,7 @@ export default function ContinuousCard() {
               <div><div className="k">Entries seen</div><div className="v">{stats.seen.toLocaleString("en-IN")}</div></div>
               <div><div className="k">Screened</div><div className="v">{stats.screened}%</div></div>
               <div className="f"><div className="k">Flags raised</div><div className="v">{stats.flag.toLocaleString("en-IN")}</div></div>
-              <div className="m"><div className="k">Missed</div><div className="v">{stats.miss.toLocaleString("en-IN")}</div></div>
+              <div className="m"><div className="k">Left unchecked</div><div className="v">{100 - stats.screened}%</div></div>
             </div>
           </div>
         </div>

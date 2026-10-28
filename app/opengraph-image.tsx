@@ -1,5 +1,4 @@
 import { ImageResponse } from "next/og";
-import { ZMark } from "@/lib/og-mark";
 
 export const alt = "Zenetra: monitor every transaction across every company in your group";
 export const size = { width: 1200, height: 630 };
@@ -10,7 +9,6 @@ export default function OpengraphImage() {
     (
       <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", justifyContent: "space-between", padding: 72, background: "linear-gradient(135deg, #FFFFFF 0%, #F3F4F6 100%)", color: "#202020" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
-          <ZMark width={64} />
           <div style={{ fontSize: 40, fontWeight: 500, letterSpacing: -1 }}>Zenetra</div>
         </div>
         <div style={{ display: "flex", flexDirection: "column" }}>

@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from "react";
 import { ENTRY_KINDS, FLAG_TYPES, flagsFor, inr, type FlagType } from "@/lib/content";
-import { Mark } from "./Icons";
 
 const TICKS = 16;
 const MAX_ROWS = 8;
@@ -100,7 +99,6 @@ export default function LiveConsole() {
     <div className="console-wrap">
       <div className="console" aria-label="Live monitoring console, demo data">
         <div className="c-head">
-          <Mark />
           <span className="t">Live monitoring <span>· TestCo</span></span>
           <span className="live"><i />Streaming</span>
         </div>

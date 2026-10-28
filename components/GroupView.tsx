@@ -52,7 +52,7 @@ export default function GroupView() {
       <div className="wrap">
         <p className="eyebrow">Group view</p>
         <h2 className="h2" style={{ marginTop: 14 }} data-reveal>
-          The exceptions that hides <em className="acc">between</em>
+          The exceptions that hide <em className="acc">between</em>
           <br />
           <span className="dm">your companies.</span>
         </h2>

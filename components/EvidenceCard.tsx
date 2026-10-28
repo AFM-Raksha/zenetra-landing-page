@@ -2,7 +2,6 @@
 
 import { Fragment, useEffect, useRef, useState } from "react";
 import { CASES } from "@/lib/cases";
-import { Mark } from "./Icons";
 
 const TABS = [
   { id: "sum", label: "Summary" },
@@ -106,7 +105,7 @@ export default function EvidenceCard() {
 
           <div className="panel" role="tabpanel" id="p-sum" aria-labelledby="t-sum" hidden={tab !== "sum"}>
             <div className="sumbox">
-              <div className="who"><Mark width={14} height={10} />Case summary</div>
+              <div className="who">Case summary</div>
               <p className="sumtext">{withRefs(c.summary)}</p>
             </div>
             <p className="sum-note">Assembled from evidence [1]–[{c.evidence.length}]. Every flag is reviewed by your team before it is closed.</p>

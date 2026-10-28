@@ -40,7 +40,7 @@ export default function StatsSources() {
     <section className="greyband" style={{ paddingBlock: "8px 64px" }}>
       <div className="wrap">
         <Statement />
-        <p className="eyebrow center" style={{ marginBottom: 18 }}>Works with Zoho Books, Tally, SAP &amp; other sources &amp; more</p>
+        <p className="eyebrow center" style={{ marginBottom: 18 }}>Works with Zoho Books, Tally, SAP, other sources &amp; more</p>
         <div className="marq"><Track items={SOURCES_1} id="mq1" /></div>
         <div className="marq rev" style={{ marginTop: 10 }}><Track items={SOURCES_2} id="mq2" /></div>
       </div>

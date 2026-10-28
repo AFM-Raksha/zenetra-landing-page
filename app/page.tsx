@@ -10,6 +10,7 @@ import RiskAreas from "@/components/RiskAreas";
 import FlagBoard from "@/components/FlagBoard";
 import Security from "@/components/Security";
 import Faq from "@/components/Faq";
+import Founder from "@/components/Founder";
 import Contact from "@/components/Contact";
 import FinalCta from "@/components/FinalCta";
 import Footer from "@/components/Footer";
@@ -54,6 +55,7 @@ export default function Home() {
         <RiskAreas />
         <FlagBoard />
         <Security />
+        <Founder />
         <Faq />
         <Contact />
         <FinalCta />

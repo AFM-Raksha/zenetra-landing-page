@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { Mark } from "./Icons";
 
 export default function Footer() {
   return (
@@ -7,7 +6,7 @@ export default function Footer() {
       <div className="wrap">
         <div className="fgrid2">
           <div>
-            <Link className="brand" href="/#top"><Mark /><b>Zenetra</b></Link>
+            <Link className="brand" href="/#top"><b>Zenetra</b></Link>
             <p className="about">Continuous transaction monitoring and exception flagging for companies and groups.</p>
           </div>
           <div>
