@@ -17,7 +17,6 @@ export default function Founder() {
             <Image src="/team/prabhava-hegde.jpg" alt="CA Prabhava Hegde" width={512} height={512} sizes="(max-width: 860px) 280px, 400px" />
             <div className="founder-plate">
               <span className="fp-title">Chartered Accountant</span>
-              <span className="fp-sub">Member, ICAI</span>
             </div>
           </div>
           <div className="founder-body">
