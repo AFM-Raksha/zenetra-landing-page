@@ -319,7 +319,9 @@ section{scroll-margin-top:72px}
 .area .no{font:500 12px var(--f-mono);color:var(--bronze)}
 .area h3{font-size:20px;letter-spacing:-0.02em}
 .area p{font-size:14.5px;color:var(--mute)}
-.area.more h3{color:var(--mute)}
+.areas-more{display:grid;justify-items:center;gap:12px;text-align:center;margin-top:8px;padding-top:44px;border-top:1px solid #D6D6DA}
+.areas-more h3{font-size:clamp(24px,2.6vw,30px);font-weight:400;letter-spacing:-0.03em;line-height:1.15}
+.areas-more > p:not(.eyebrow){font-size:15.5px;color:var(--mute);max-width:60ch}
 .area .tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
 .rtag{position:relative;display:inline-flex;cursor:default;border-radius:999px}
 .rtag:focus-visible{outline:2px solid var(--bronze);outline-offset:2px}

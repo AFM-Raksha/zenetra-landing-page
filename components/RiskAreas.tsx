@@ -30,7 +30,7 @@ export default function RiskAreas() {
         </div>
         <div className="areas">
           {RISK_AREAS.map((a, i) => (
-            <div className={`area${a.more ? " more" : ""}`} key={a.title}>
+            <div className="area" key={a.title}>
               <span className="no">0{i + 1}</span>
               <h3>{a.title}</h3>
               <p>{a.desc}</p>
@@ -43,6 +43,13 @@ export default function RiskAreas() {
               </div>}
             </div>
           ))}
+        </div>
+        <div className="areas-more">
+          <p className="eyebrow">The library keeps growing</p>
+          <h3>New detections, as new risks emerge.</h3>
+          <p>
+            These nine areas are where Zenetra starts. New detections are added as the rulebook grows.
+          </p>
         </div>
       </div>
     </section>

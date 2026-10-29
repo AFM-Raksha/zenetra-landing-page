@@ -61,7 +61,7 @@ export const PATTERNS: Pattern[] = [
 export const patternName = (id: string) => PATTERNS.find((p) => p.id === id)?.name ?? id;
 
 /** Risk areas. Areas without rule IDs describe concepts on the roadmap, shown as plain tags. */
-export const RISK_AREAS: { title: string; desc: string; tags: string[]; tone: Tone; concept?: boolean; more?: boolean }[] = [
+export const RISK_AREAS: { title: string; desc: string; tags: string[]; tone: Tone; concept?: boolean }[] = [
   { title: "Vendors & purchasing", desc: "Fake or conflicted suppliers, diverted payments and purchases paid for goods that never arrived.", tags: ["P2P-01", "P2P-03", "P2P-07", "P2P-11"], tone: "v" },
   { title: "Payroll & people", desc: "Ghost employees, pay that outlives an exit, and claims or pay rates nudged up for a single run.", tags: ["PAY-01", "PAY-04", "PAY-07", "PAY-13"], tone: "o" },
   { title: "Sales & receivables", desc: "Sales with nothing shipped, revenue that never turns into cash, and invoices undone after the period closes.", tags: ["O2C-02", "O2C-03", "O2C-12"], tone: "t" },
@@ -71,7 +71,6 @@ export const RISK_AREAS: { title: string; desc: string; tags: string[]; tone: To
   { title: "Round-tripping", desc: "Money and paperwork moving in loops between group companies to inflate turnover or disguise funding.", tags: ["RTP-01", "RTP-04", "RTP-08", "P2P-13"], tone: "b" },
   { title: "Inventory & fixed assets", desc: "Stock that exists only on paper, write-offs timed to cover losses, and assets that are capitalised but never seen.", tags: ["Stock shrinkage", "Ghost assets", "Write-off timing"], tone: "v", concept: true },
   { title: "Ledger hygiene & expenses", desc: "Plug entries that force a reconciliation, privileged overrides, and expense claims that are duplicated or inflated.", tags: ["Plug entries", "Privileged overrides", "Duplicate claims"], tone: "a", concept: true },
-  { title: "& more", desc: "New detections are added as the rulebook grows, across more processes and sources.", tags: [], tone: "a", more: true },
 ];
 
 /** Flag types shown in the live console, the ledger tooltip and the toast. */
