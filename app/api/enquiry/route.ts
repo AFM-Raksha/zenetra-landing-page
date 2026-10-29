@@ -1,4 +1,4 @@
-import { emailEnquiry, markEmailed, storeEnquiry, validateEnquiry } from "@/lib/enquiry";
+import { emailEnquiry, newEnquiryId, storeEnquiry, validateEnquiry } from "@/lib/enquiry";
 
 // Best-effort rate limit per server instance: a few requests per address in a short window.
 const WINDOW_MS = 10 * 60 * 1000;
@@ -35,22 +35,24 @@ export async function POST(request: Request) {
   const parsed = validateEnquiry(raw);
   if (!parsed.ok) return json(400, { ok: false, error: parsed.error });
 
-  let ref: string | null = null;
-  let emailed = false;
+  // Email first so the stored copy can record whether it went out; keep a copy either way.
+  const id = newEnquiryId();
+  let emailed = false, stored = false;
   try {
-    ref = await storeEnquiry(parsed.value);
+    emailed = await emailEnquiry(parsed.value, id);
   } catch (err) {
-    console.error("[enquiry] store failed", err);
+    // Mail servers explain refusals in the response text, e.g. "535 Username and Password not accepted".
+    const e = err as { code?: string; responseCode?: number; response?: string; message?: string };
+    console.error(`[enquiry] email failed: code=${e.code ?? "?"} smtp=${e.responseCode ?? "?"} ${e.response ?? e.message ?? ""}`);
   }
   try {
-    emailed = await emailEnquiry(parsed.value, ref);
-    if (emailed && ref) await markEmailed(ref);
+    stored = await storeEnquiry({ ...parsed.value, id, created_at: new Date().toISOString(), email_sent: emailed });
   } catch (err) {
-    console.error("[enquiry] email failed", err);
+    console.error(`[enquiry] store failed: ${err instanceof Error ? err.message : String(err)}`);
   }
 
-  if (!ref && !emailed) {
-    console.error("[enquiry] not saved or emailed; check DATABASE_URL and SMTP_* settings");
+  if (!stored && !emailed) {
+    console.error(`[enquiry] ${id} not saved or emailed`);
     return json(503, { ok: false, error: "We couldn't send your request just now. Please try again in a few minutes." });
   }
   return json(200, { ok: true });

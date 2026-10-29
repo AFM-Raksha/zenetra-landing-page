@@ -2,13 +2,11 @@ import "server-only";
 import { appendFile, mkdir } from "node:fs/promises";
 import { join } from "node:path";
 import nodemailer from "nodemailer";
-import postgres from "postgres";
 import { ENTITY_OPTIONS, ERP_OPTIONS } from "./form-options";
 
-// Demo-request handling: validate, store, then email the team.
-// Storage: Postgres when DATABASE_URL is set; a local JSONL file during development; otherwise email only.
-// Email: any SMTP provider (Zoho Mail, SMTP2GO, Brevo) through the SMTP_* variables. See .env.example.
-
+// Demo-request handling: validate, email the team, then keep a copy.
+// Email: any SMTP provider through the SMTP_* variables (Gmail by default). See .env.example.
+// Storage: a private file per enquiry in Vercel Blob; a local JSONL file during development.
 
 export type Enquiry = { name: string; email: string; company: string; entities: string; erp: string };
 
@@ -28,51 +26,37 @@ export function validateEnquiry(raw: Record<string, unknown>): { ok: true; value
 
 // ---------- storage ----------
 
-let sql: ReturnType<typeof postgres> | null = null;
-let tableReady: Promise<unknown> | null = null;
+export type StoredEnquiry = Enquiry & { id: string; created_at: string; email_sent: boolean };
 
-function db() {
-  const url = process.env.DATABASE_URL;
-  if (!url) return null;
-  sql ??= postgres(url, { max: 1, idle_timeout: 20, prepare: false });
-  tableReady ??= sql`
-    create table if not exists enquiries (
-      id bigserial primary key,
-      created_at timestamptz not null default now(),
-      name text not null,
-      email text not null,
-      company text not null,
-      entities text not null,
-      erp text not null,
-      email_sent boolean not null default false
-    )`;
-  return sql;
+/** A sortable, unique reference such as 20261029-142205-a1b2c3. */
+export function newEnquiryId(now = new Date()) {
+  const stamp = now.toISOString().replace(/[-:]/g, "").replace("T", "-").slice(0, 15);
+  return `${stamp}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
-/** Saves the enquiry. Returns a reference id, or null when no storage is configured. */
-export async function storeEnquiry(e: Enquiry): Promise<string | null> {
-  const s = db();
-  if (s) {
-    await tableReady;
-    const [row] = await s`
-      insert into enquiries (name, email, company, entities, erp)
-      values (${e.name}, ${e.email}, ${e.company}, ${e.entities}, ${e.erp})
-      returning id`;
-    return String(row.id);
+/**
+ * Saves one enquiry as a private JSON file in Vercel Blob (needs BLOB_READ_WRITE_TOKEN, which Vercel
+ * adds when a Blob store is connected to the project). During development without a token it appends
+ * to .data/enquiries.jsonl. Returns false when no storage is available.
+ */
+export async function storeEnquiry(rec: StoredEnquiry): Promise<boolean> {
+  if (process.env.BLOB_READ_WRITE_TOKEN) {
+    const { put } = await import("@vercel/blob");
+    await put(`enquiries/${rec.created_at.slice(0, 7)}/${rec.id}.json`, JSON.stringify(rec, null, 2), {
+      access: "private",
+      contentType: "application/json",
+      addRandomSuffix: false,
+    });
+    return true;
   }
   if (process.env.NODE_ENV !== "production") {
     const dir = join(process.cwd(), ".data");
     await mkdir(dir, { recursive: true });
-    const id = `local-${Date.now()}`;
-    await appendFile(join(dir, "enquiries.jsonl"), JSON.stringify({ id, created_at: new Date().toISOString(), ...e }) + "\n");
-    return id;
+    await appendFile(join(dir, "enquiries.jsonl"), JSON.stringify(rec) + "\n");
+    return true;
   }
-  return null;
-}
-
-export async function markEmailed(id: string) {
-  const s = db();
-  if (s && /^\d+$/.test(id)) await s`update enquiries set email_sent = true where id = ${id}`;
+  console.warn("[enquiry] storage not configured; missing: BLOB_READ_WRITE_TOKEN");
+  return false;
 }
 
 // ---------- email ----------
@@ -80,9 +64,11 @@ export async function markEmailed(id: string) {
 let transport: ReturnType<typeof nodemailer.createTransport> | null = null;
 
 function mailer() {
-  const { SMTP_HOST, SMTP_USER, SMTP_PASS } = process.env;
-  if (!SMTP_HOST || !SMTP_USER || !SMTP_PASS) return null;
-  const port = Number(process.env.SMTP_PORT ?? 465);
+  // Only the Gmail address and its App Password are required; the server defaults to Gmail's.
+  const { SMTP_USER, SMTP_PASS } = process.env;
+  const SMTP_HOST = process.env.SMTP_HOST || "smtp.gmail.com";
+  if (!SMTP_USER || !SMTP_PASS) return null;
+  const port = Number(process.env.SMTP_PORT || 465);
   transport ??= nodemailer.createTransport({
     host: SMTP_HOST,
     port,
@@ -95,14 +81,20 @@ function mailer() {
 const esc = (s: string) => s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
 
 /** Emails the team. Returns false when SMTP is not configured. */
-export async function emailEnquiry(e: Enquiry, ref: string | null): Promise<boolean> {
+export async function emailEnquiry(e: Enquiry, ref: string): Promise<boolean> {
   const t = mailer();
-  const to = process.env.ENQUIRY_TO;
-  const from = process.env.ENQUIRY_FROM ?? process.env.SMTP_USER;
-  if (!t || !to || !from) return false;
+  // Sender and recipient default to the sending account, so one Gmail inbox both sends and receives.
+  const to = process.env.ENQUIRY_TO || process.env.SMTP_USER;
+  const from = process.env.ENQUIRY_FROM || process.env.SMTP_USER;
+  if (!t || !to || !from) {
+    // Name the missing settings (never their values) so the cause shows up in the server logs.
+    const missing = ["SMTP_USER", "SMTP_PASS"].filter((k) => !process.env[k]);
+    console.warn(`[enquiry] email not configured; missing: ${missing.join(", ") || "none"}`);
+    return false;
+  }
 
   const rows: [string, string][] = [["Name", e.name], ["Work email", e.email], ["Company or group", e.company], ["Companies in the group", e.entities], ["ERP", e.erp]];
-  if (ref) rows.push(["Reference", ref]);
+  rows.push(["Reference", ref]);
   await t.sendMail({
     from: `Zenetra website <${from}>`,
     to,

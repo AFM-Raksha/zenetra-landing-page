@@ -9,9 +9,9 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@vercel/blob": "2.8.2",
     "next": "16.4.1",
-    "nodemailer": "10.0.13",
-    "postgres": "^3.4.9",
+    "nodemailer": "10.1.7",
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "server-only": "^0.0.1"
@@ -23,5 +23,8 @@
     "eslint": "^9",
     "eslint-config-next": "16.4.1",
     "typescript": "^5"
+  },
+  "overrides": {
+    "zod": "4.6.6"
   }
 }
